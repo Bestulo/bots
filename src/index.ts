@@ -1,9 +1,14 @@
 import * as fs from 'fs-extra'
 
-import {createConnection} from "typeorm";
-import {Sticker} from "./entity/Sticker";
+import { createConnection } from "typeorm";
+import { Sticker } from "./entity/Sticker";
+import { StickerEmoji } from "./entity/StickerEmoji";
+import { StickerKeyword } from "./entity/StickerKeyword";
 
-const stickeroos: Partial<Sticker>[] = [{
+const entities = [ Sticker, StickerEmoji, StickerKeyword ];
+export type Entity = (typeof entities)[number];
+
+const stickeroos = [{
   fileId: "CAACAgEAAxkBAAETflVe8SfXeDd2peGuobT-BJubVrinDgACagoAAsWGLA4FXfhJaaPZcxoE",
   keywords: ["wow", "openmouth"],
   emojis: ["😳"]
@@ -17,18 +22,36 @@ const stickeroos: Partial<Sticker>[] = [{
   emojis: ["😱", "😨"]
 }]
 
-stickeroos.forEach(sticka => {
-  const sticker = new Sticker();
-  for (let prop in Object.keys(sticka)) {
-    sticker[prop as keyof Sticker] = sticka[prop as keyof Sticker]
-  }
-})
+const conn = createConnection({
+  type: 'sqlite',
+  database: 'db.sqlite',
+  entities: [
+    Sticker,
+    StickerEmoji,
+    StickerKeyword
+  ]
+}).then(() => {
 
-// createConnection({
-//   type: 'sqlite',
-//   database: 'db.sqlite'
-// }).then(async cunt => {
-// 	cunt.
-// }).catch(error => console.log(error));
+  const savedStickers = stickeroos.map(async sticka => {
+
+    const sticker = new Sticker();
+
+    sticker.fileId = sticka.fileId
+
+    sticker.emojis = sticka.emojis.map(emoji =>
+      Object.assign(new StickerEmoji(), emoji))
+
+    sticker.keywords = sticka.keywords.map(keyword =>
+      Object.assign(new StickerKeyword(), keyword))
+
+    await sticker.save()
+  })
+
+  Promise.all(savedStickers).then(() => {
+    const allStickers = Sticker.find()
+    console.log(allStickers)
+  })
+
+});
 
 console.log(fs.readFileSync('nodemon.json', 'utf8'))

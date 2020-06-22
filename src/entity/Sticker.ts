@@ -1,4 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable } from "typeorm";
+import { StickerEmoji } from "./StickerEmoji"
+import { StickerKeyword } from "./StickerKeyword"
 
 @Entity()
 export class Sticker extends BaseEntity {
@@ -6,13 +8,15 @@ export class Sticker extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ unique: true })
     fileId: string;
 
-    @Column()
-    keywords: string[];
+    @ManyToMany(type => StickerEmoji)
+    @JoinTable()
+    emojis: StickerEmoji[];
 
-    @Column()
-    emojis: string[];
+    @ManyToMany(type => StickerKeyword)
+    @JoinTable()
+    keywords: StickerKeyword[];
 
 }
