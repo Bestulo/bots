@@ -25,33 +25,44 @@ const stickeroos = [{
 const conn = createConnection({
   type: 'sqlite',
   database: 'db.sqlite',
+  synchronize: true,
+  logging: true,
   entities: [
     Sticker,
     StickerEmoji,
     StickerKeyword
   ]
-}).then(() => {
+}).then(async () => {
+  const sticker = await StickerEmoji.find({ relations: ['sticker'], where: { emoji: '😳' }})
+  console.log(sticker)
+})
 
-  const savedStickers = stickeroos.map(async sticka => {
+//   const savedStickers = stickeroos.map(async sticka => {
 
-    const sticker = new Sticker();
+//     const sticker = new Sticker();
 
-    sticker.fileId = sticka.fileId
+//     sticker.fileId = sticka.fileId
 
-    sticker.emojis = sticka.emojis.map(emoji =>
-      Object.assign(new StickerEmoji(), emoji))
+//     sticker.emojis = sticka.emojis.map(emoji => {
+//       const entry = Object.assign(new StickerEmoji(), {emoji})
+//       entry.save()
+//       return entry
+//     })
 
-    sticker.keywords = sticka.keywords.map(keyword =>
-      Object.assign(new StickerKeyword(), keyword))
+//     sticker.keywords = sticka.keywords.map(keyword => {
+//       const entry = Object.assign(new StickerKeyword(), {keyword})
+//       entry.save()
+//       return entry
+//     })
 
-    await sticker.save()
-  })
+//     await sticker.save()
+//   })
 
-  Promise.all(savedStickers).then(() => {
-    const allStickers = Sticker.find()
-    console.log(allStickers)
-  })
+//   Promise.all(savedStickers).then(() => {
+//     const allStickers = Sticker.find()
+//     console.log(allStickers)
+//   })
 
-});
+// });
 
 console.log(fs.readFileSync('nodemon.json', 'utf8'))

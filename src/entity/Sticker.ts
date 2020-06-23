@@ -11,11 +11,11 @@ export class Sticker extends BaseEntity {
     @Column({ unique: true })
     fileId: string;
 
-    @ManyToMany(type => StickerEmoji)
+    @ManyToMany(type => StickerEmoji, emoji => emoji.sticker)
     @JoinTable()
     emojis: StickerEmoji[];
 
-    @ManyToMany(type => StickerKeyword)
+    @ManyToMany(type => StickerKeyword, keyword => keyword.sticker)
     @JoinTable()
     keywords: StickerKeyword[];
 
