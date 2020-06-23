@@ -7,11 +7,11 @@ export class StickerEmoji extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column(/* { unique: true } */)
     emoji: string;
 
     @ManyToMany(type => Sticker, sticker => sticker.emojis)
     @JoinTable()
-    sticker: Sticker[];
+    stickers: Sticker[];
 
 }

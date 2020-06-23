@@ -7,11 +7,11 @@ export class StickerKeyword extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column(/* { unique: true } */)
     keyword: string;
 
     @ManyToMany(type => Sticker, sticker => sticker.keywords)
     @JoinTable()
-    sticker: Sticker[];
+    stickers: Sticker[];
 
 }

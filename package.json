@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.1",
+    "@types/ramda": "^0.27.6",
     "eslint": "^7.3.0",
     "fs-extra": "^9.0.1",
     "ramda": "^0.27.0",
