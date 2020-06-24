@@ -1,17 +1,20 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable} from "typeorm";
-import { Sticker } from "./Sticker"
+import {
+	Entity,
+	PrimaryGeneratedColumn,
+	Column,
+	BaseEntity,
+	ManyToMany
+} from 'typeorm';
+import { Sticker } from './Sticker';
 
 @Entity()
 export class StickerKeyword extends BaseEntity {
+	@PrimaryGeneratedColumn()
+	id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+	@Column({ unique: true })
+	keyword: string;
 
-    @Column(/* { unique: true } */)
-    keyword: string;
-
-    @ManyToMany(type => Sticker, sticker => sticker.keywords)
-    @JoinTable()
-    stickers: Sticker[];
-
+	@ManyToMany(() => Sticker, sticker => sticker.keywords)
+	stickers: Sticker[];
 }

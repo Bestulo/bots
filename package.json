@@ -1,30 +1,72 @@
 {
-  "name": "bots",
-  "version": "1.0.0",
-  "description": "Besto's bots",
-  "main": "build/index.js",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^14.0.13",
-    "rimraf": "^3.0.2",
-    "ts-node": "^8.10.2"
-  },
-  "scripts": {
-    "start": "npm run build && node build/index.js",
-    "start:dev": "nodemon",
-    "build": "rimraf ./build && tsc"
-  },
-  "dependencies": {
-    "@types/fs-extra": "^9.0.1",
-    "@types/ramda": "^0.27.6",
-    "eslint": "^7.3.0",
-    "fs-extra": "^9.0.1",
-    "ramda": "^0.27.0",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5",
-    "sqlite3": "^4.2.0",
-    "telegraf": "^3.38.0",
-    "typeorm": "^0.2.25",
-    "typescript": "^3.9.5"
-  }
+	"name": "bots",
+	"version": "1.0.0",
+	"description": "Besto's bots",
+	"main": "build/index.js",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^14.0.13",
+		"@typescript-eslint/eslint-plugin": "^3.4.0",
+		"@typescript-eslint/parser": "^3.4.0",
+		"eslint": "^7.3.1",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prettier": "^3.1.4",
+		"prettier": "^2.0.5",
+		"rimraf": "^3.0.2",
+		"ts-node": "^8.10.2",
+		"typescript": "^3.9.5"
+	},
+	"scripts": {
+		"start": "npm run build && node build/index.js",
+		"start:dev": "nodemon",
+		"build": "rimraf ./build && tsc",
+		"lint": "eslint src/**/*.ts"
+	},
+	"dependencies": {
+		"@types/fs-extra": "^9.0.1",
+		"@types/ramda": "^0.27.6",
+		"fs-extra": "^9.0.1",
+		"ramda": "^0.27.0",
+		"request": "^2.88.2",
+		"request-promise": "^4.2.5",
+		"sqlite3": "^4.2.0",
+		"telegraf": "^3.38.0",
+		"typeorm": "^0.2.25"
+	},
+	"prettier": {
+		"tabWidth": 4,
+		"useTabs": true,
+		"singleQuote": true,
+		"trailingComma": "none",
+		"arrowParens": "avoid"
+	},
+	"eslintConfig": {
+		"env": {
+			"browser": true,
+			"es2020": true,
+			"node": true
+		},
+		"root": true,
+		"extends": [
+			"eslint:recommended",
+			"prettier",
+			"plugin:@typescript-eslint/eslint-recommended",
+			"plugin:@typescript-eslint/recommended",
+			"plugin:@typescript-eslint/recommended-requiring-type-checking",
+			"prettier/@typescript-eslint",
+			"plugin:prettier/recommended"
+		],
+		"parser": "@typescript-eslint/parser",
+		"parserOptions": {
+			"ecmaVersion": 2020,
+			"sourceType": "module",
+			"project": [
+				"./tsconfig.json"
+			]
+		},
+		"plugins": [
+			"@typescript-eslint"
+		],
+		"rules": {}
+	}
 }

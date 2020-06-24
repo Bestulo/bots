@@ -1,59 +1,73 @@
-import { uniq, concat } from 'ramda'
-import stickeroos from "./data/sampleStickers.json"
+import stickeroos from './data/sampleStickers.json';
 
-import { createConnection, Entity, } from "typeorm";
-import { Sticker } from "./entity/Sticker";
-import { StickerEmoji } from "./entity/StickerEmoji";
-import { StickerKeyword } from "./entity/StickerKeyword";
+import { createConnection, BaseEntity, Repository, Connection } from 'typeorm';
+import { Sticker } from './entity/Sticker';
+import { StickerEmoji } from './entity/StickerEmoji';
+import { StickerKeyword } from './entity/StickerKeyword';
 
-const entities = [ Sticker, StickerEmoji, StickerKeyword ];
-export type Entity = (typeof entities)[number];
+const entities = [Sticker, StickerEmoji, StickerKeyword];
 interface RawSticker {
-  fileId: string,
-  keywords: string[],
-  emojis: string[]
+	fileId: string;
+	keywords: string[];
+	emojis: string[];
 }
 interface KvPair {
-	[key: string]: string
+	[key: string]: string;
 }
 
-const upsertEntity = async <T extends Entity>(PlaceholderEntity: T, kvPair: KvPair) => {
-	const saved = await PlaceholderEntity.find(kvPair)
-	if (!saved.length) {
-		const newEntity = Object.assign(new PlaceholderEntity(), kvPair)
-		await newEntity.save()
-		return newEntity
-	} else {
-		return saved
+const upsert = async <Repo extends Repository<Ent>, Ent extends BaseEntity>(
+	repo: Repo,
+	entity: Ent,
+	field: Exclude<keyof Ent, keyof BaseEntity>
+) => {
+	const existing = await repo.findOne({ where: { [field]: entity[field] } });
+	if (existing) {
+		return existing;
 	}
-}
-		
-const join = (a1: any[], a2: any[]) => uniq(concat(a1 || [], a2 || []))
+	return entity.save();
+};
 
-const saveSticker = async ({ fileId, keywords, emojis }: RawSticker) => {	
-	const sticker = (await Sticker.findOne({fileId})) || new Sticker()
-
-	const savedKeywords = await Promise.all(keywords.map(keyword =>
-		upsertEntity(StickerKeyword, {keyword})))
-
-	const savedEmojis = await Promise.all(emojis.map(emoji =>
-		upsertEntity(StickerEmoji, {emoji})))
-	sticker.fileId = fileId
-	sticker.keywords = join(sticker.keywords, savedKeywords)
-	sticker.emojis = join(sticker.emojis, savedEmojis)
-	return sticker.save()
-}
+const saveSticker = async (
+	{ fileId, keywords, emojis }: RawSticker,
+	conn: Connection
+) => {
+	const sticker = new Sticker();
+	sticker.fileId = fileId;
+	sticker.keywords = await Promise.all(
+		keywords.map(keyword =>
+			upsert(
+				conn.getRepository(StickerKeyword),
+				Object.assign(new StickerKeyword(), { keyword }),
+				'keyword'
+			)
+		)
+	);
+	sticker.emojis = await Promise.all(
+		emojis.map(emoji =>
+			upsert(
+				conn.getRepository(StickerEmoji),
+				Object.assign(new StickerEmoji(), { emoji }),
+				'emoji'
+			)
+		)
+	);
+	return upsert(conn.getRepository(Sticker), sticker, 'fileId');
+};
 
 createConnection({
-  type: 'sqlite',
-  database: 'db.sqlite',
-  synchronize: true,
-  logging: true,
-  entities
+	type: 'sqlite',
+	database: 'db.sqlite',
+	synchronize: true,
+	logging: true,
+	entities
 })
-.then(() => Promise.all(stickeroos.map(saveSticker)))
-.then(async () => {
-	// const res = await StickerEmoji.find()
-  const res = await StickerEmoji.find({ relations: ['stickers'], where: { emoji: '😳' }})
-  console.log(res)
-}).catch(console.error);
+	.then(conn => Promise.all(stickeroos.map(s => saveSticker(s, conn))))
+	.then(async () => {
+		// const res = await StickerEmoji.find()
+		const res = await StickerEmoji.find({
+			relations: ['stickers'],
+			where: { emoji: '😳' }
+		});
+		console.log(res[0].stickers[0]);
+	})
+	.catch(console.error);
